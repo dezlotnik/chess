@@ -50,24 +50,16 @@ void Renderer::Render() {
   r.h = square_size;
 
   // Render rect
-  Color *first_color = &light_color_;
-  Color *second_color = &dark_color_;
-  for (int i = 0; i < 8; i++) {
-    for (int j = 0; j < 8; j++) {
-      if (j%2 == 0) {
-        SDL_SetRenderDrawColor(sdl_renderer, first_color->r, first_color->g, first_color->b, first_color->alpha);
-      } else {
-        SDL_SetRenderDrawColor(sdl_renderer, second_color->r, second_color->g, second_color->b, second_color->alpha);
-      }
+  for (int rank = 0; rank < 8; rank++) {
+    Color square_color;
+    for (int file = 0; file < 8; file++) {
+      square_color = (file+rank)%2 ? light_color_ : dark_color_;
+      SDL_SetRenderDrawColor(sdl_renderer, square_color.r, square_color.g, square_color.b, square_color.alpha);
       SDL_RenderFillRect(sdl_renderer, &r);
       r.x += square_size;
     }
     r.x = 0;
     r.y += square_size;
-    Color *tmp;
-    tmp = first_color;
-    first_color = second_color;
-    second_color = tmp;
   }
 
   // Update Screen
