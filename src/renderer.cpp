@@ -53,7 +53,7 @@ void Renderer::Render() {
   for (int rank = 0; rank < 8; rank++) {
     Color square_color;
     for (int file = 0; file < 8; file++) {
-      square_color = (file+rank)%2 ? light_color_ : dark_color_;
+      square_color = (file+rank)%2 == 0 ? light_color_ : dark_color_;
       SDL_SetRenderDrawColor(sdl_renderer, square_color.r, square_color.g, square_color.b, square_color.alpha);
       SDL_RenderFillRect(sdl_renderer, &r);
       r.x += square_size;
