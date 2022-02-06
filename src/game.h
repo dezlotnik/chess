@@ -4,9 +4,11 @@
 #include <random>
 #include <vector>
 #include <memory>
+#include <string>
 #include "SDL.h"
 #include "controller.h"
 #include "renderer.h"
+#include "piece.h"
 
 class Game {
  public:
@@ -17,7 +19,11 @@ class Game {
  private:
   std::size_t screen_width;
   std::size_t screen_height;
+  std::vector<std::unique_ptr<Piece>> black_pieces_;
+  std::vector<std::unique_ptr<Piece>> white_pieces_;
   void Update();
+  void initializeFromFen(std::string fen, std::vector<std::unique_ptr<Piece>> &black_pieces, std::vector<std::unique_ptr<Piece>> &white_pieces);
+  void initializeGame(std::vector<std::unique_ptr<Piece>> &black_pieces, std::vector<std::unique_ptr<Piece>> &white_pieces);
 };
 
 #endif

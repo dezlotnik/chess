@@ -2,6 +2,7 @@
 #include <iostream>
 #include <string>
 #include "SDL_image.h"
+#include "piece.h"
 
 Renderer::Renderer(const std::size_t screen_width,
                    const std::size_t screen_height)
@@ -37,7 +38,7 @@ Renderer::~Renderer() {
   SDL_Quit();
 }
 
-void Renderer::Render() {
+void Renderer::Render(const std::vector<std::unique_ptr<Piece>>& black_pieces, const std::vector<std::unique_ptr<Piece>>& white_pieces) {
 
   // Clear screen
   SDL_SetRenderDrawColor(sdl_renderer, 0x1E, 0x1E, 0x1E, 0xFF);
@@ -49,7 +50,7 @@ void Renderer::Render() {
   r.w = square_size;
   r.h = square_size;
 
-  // Render rect
+  // Render board
   for (int rank = 0; rank < 8; rank++) {
     Color square_color;
     for (int file = 0; file < 8; file++) {
@@ -62,6 +63,15 @@ void Renderer::Render() {
     r.y += square_size;
   }
 
+  // Render pieces
+  for (const std::unique_ptr<Piece> &piece: black_pieces) {
+    RenderPiece(piece.get());
+  }
+
+  for (const std::unique_ptr<Piece> &piece: white_pieces) {
+    RenderPiece(piece.get());
+  }
+
   // Update Screen
   SDL_RenderPresent(sdl_renderer);
 }
@@ -69,4 +79,29 @@ void Renderer::Render() {
 void Renderer::UpdateWindowTitle(int fps) {
   std::string title{"Chess! FPS: " + std::to_string(fps)};
   SDL_SetWindowTitle(sdl_window, title.c_str());
+}
+
+void Renderer::RenderPiece(const Piece *piece,  bool render_bounding_box) {
+  SDL_Surface *surface = IMG_Load((piece->getImage()).c_str());
+  if (nullptr == surface) {
+    std::cerr << "SDL_Error: " << SDL_GetError() << "\n";
+  }
+
+  SDL_Texture *texture = SDL_CreateTextureFromSurface(sdl_renderer, surface);
+  SDL_FreeSurface(surface);
+  SDL_Rect destination;
+  destination.x = piece->file()*square_size + (square_size - piece->getWidth())/2;
+  destination.y = piece->rank()*square_size + (square_size - piece->getHeight())/2;
+  destination.w = piece->getWidth();
+  destination.h = piece->getHeight();
+  SDL_RendererFlip flip = SDL_FLIP_NONE;
+  SDL_RenderCopyEx(sdl_renderer, texture, NULL, &destination,
+                   0, NULL, flip);
+  // SDL_RenderCopy(sdl_renderer, texture, NULL, &destination);
+  SDL_DestroyTexture(texture);
+
+  if (render_bounding_box) {
+    SDL_SetRenderDrawColor(sdl_renderer, 0x00, 0x7A, 0xCC, 0xFF);
+    SDL_RenderDrawRect(sdl_renderer, &destination);
+  }
 }

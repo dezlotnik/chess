@@ -14,5 +14,5 @@ find_package(SDL2_image REQUIRED)
 include_directories(${SDL2_INCLUDE_DIRS} src)
 include_directories(${SDL2_IMAGE_INCLUDE_DIRS})
 
-add_executable(Chess src/main.cpp src/renderer.cpp src/controller.cpp src/game.cpp)
+add_executable(Chess src/main.cpp src/renderer.cpp src/controller.cpp src/game.cpp src/piece.cpp)
 target_link_libraries(Chess ${SDL2_LIBRARIES} ${SDL2_IMAGE_LIBRARIES})

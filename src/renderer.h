@@ -2,15 +2,18 @@
 #define RENDERER_H
 
 #include <vector>
+#include <memory>
 #include "SDL.h"
+#include "piece.h"
 
 class Renderer {
  public:
   Renderer(const std::size_t screen_width, const std::size_t screen_height);
   ~Renderer();
 
-  void Render();
+  void Render(const std::vector<std::unique_ptr<Piece>>& black_pieces, const std::vector<std::unique_ptr<Piece>>& white_pieces);
   void UpdateWindowTitle(int fps);
+  void RenderPiece(const Piece *piece, bool render_bounding_box = false);
 
   struct Color {
     size_t r = 0;
