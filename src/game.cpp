@@ -110,13 +110,13 @@ void Game::handleMousePress() {
   file = mouse_x_/100;
 
   for (auto &piece : black_pieces_) {
-    if (piece->rank() == rank && piece->file() == file) {
+    if (piece->rank() == rank && piece->file() == file && turn_ == Turn::Black) {
       piece->setMoving(true);
     }
   }
 
   for (auto &piece : white_pieces_) {
-    if (piece->rank() == rank && piece->file() == file) {
+    if (piece->rank() == rank && piece->file() == file && turn_ == Turn::White) {
       piece->setMoving(true);
     }
   }
@@ -128,13 +128,17 @@ void Game::handleMouseLift() {
   int file;
   rank = mouse_y_/100;
   file = mouse_x_/100;
+  bool turn_over = false;
 
   for (auto &piece : black_pieces_) {
     if (piece->isMoving()) {
       piece->setMoving(false);
-      piece->setRank(rank);
-      piece->setFile(file);
-    } else if (piece->rank() == rank && piece->file() == file) {
+      if (rank != piece->rank() || file != piece->file()) {
+        turn_over = true;
+        piece->setRank(rank);
+        piece->setFile(file);
+      }
+    } else if (piece->rank() == rank && piece->file() == file && turn_ == Turn::White) {
       // handle captures
       piece->setCaptured(true);
     }
@@ -144,12 +148,19 @@ void Game::handleMouseLift() {
   for (auto &piece : white_pieces_) {
     if (piece->isMoving()) {
       piece->setMoving(false);
-      piece->setRank(rank);
-      piece->setFile(file);
-    } else if (piece->rank() == rank && piece->file() == file) {
+      if (rank != piece->rank() || file != piece->file()) {
+        turn_over = true;
+        piece->setRank(rank);
+        piece->setFile(file);
+      }
+    } else if (piece->rank() == rank && piece->file() == file && turn_ == Turn::Black) {
       // handle captures
       piece->setCaptured(true);
     }
+  }
+
+  if (turn_over) {
+    turn_ = (turn_ == Turn::White) ? Turn::Black : Turn::White;
   }
 }
 
@@ -158,6 +169,9 @@ void Game::initializeFromFen(std::string fen, std::vector<std::unique_ptr<Piece>
 }
 
 void Game::initializeGame(std::vector<std::unique_ptr<Piece>> &black_pieces, std::vector<std::unique_ptr<Piece>> &white_pieces) {
+
+  turn_ = Turn::White;
+
   std::unique_ptr<Piece> black_rook = std::make_unique<Piece>(Piece::Color::Black, Piece::Type::Rook);
   black_rook->setRank(0);
   black_rook->setFile(0);

@@ -16,6 +16,12 @@ class Game {
   void Run(Controller const &controller, Renderer &renderer,
            std::size_t target_frame_duration);
 
+  enum class Turn {
+    None = 0,
+    White = 1,
+    Black = 2
+  };
+
  private:
   std::size_t screen_width;
   std::size_t screen_height;
@@ -30,6 +36,7 @@ class Game {
   int mouse_x_ = 0;
   bool mouse_pressed_ = false;
   bool mouse_lift_ = false;
+  Turn turn_ = Turn::None;
 };
 
 #endif
