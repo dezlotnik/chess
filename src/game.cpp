@@ -25,7 +25,7 @@ void Game::Run(Controller const &controller, Renderer &renderer,
     frame_start = SDL_GetTicks();
 
     // Input, Update, Render - the main game loop.
-    controller.HandleInput(running);
+    controller.HandleInput(running, black_pieces_, white_pieces_);
     Update();
     renderer.Render(black_pieces_, white_pieces_);
 
@@ -130,7 +130,7 @@ void Game::initializeGame(std::vector<std::unique_ptr<Piece>> &black_pieces, std
   std::unique_ptr<Piece> white_king = std::make_unique<Piece>(Piece::Color::White, Piece::Type::King);
   white_king->setRank(7);
   white_king->setFile(4);
-  black_pieces.push_back(std::move(white_king));
+  white_pieces.push_back(std::move(white_king));
 
   std::unique_ptr<Piece> white_rook2 = std::make_unique<Piece>(Piece::Color::White, Piece::Type::Rook);
   white_rook2->setRank(7);
@@ -151,6 +151,6 @@ void Game::initializeGame(std::vector<std::unique_ptr<Piece>> &black_pieces, std
     std::unique_ptr<Piece> white_pawn = std::make_unique<Piece>(Piece::Color::White, Piece::Type::Pawn);
     white_pawn->setRank(6);
     white_pawn->setFile(file);
-    black_pieces.push_back(std::move(white_pawn));
+    white_pieces.push_back(std::move(white_pawn));
   }
 }

@@ -90,14 +90,19 @@ void Renderer::RenderPiece(const Piece *piece,  bool render_bounding_box) {
   SDL_Texture *texture = SDL_CreateTextureFromSurface(sdl_renderer, surface);
   SDL_FreeSurface(surface);
   SDL_Rect destination;
-  destination.x = piece->file()*square_size + (square_size - piece->getWidth())/2;
-  destination.y = piece->rank()*square_size + (square_size - piece->getHeight())/2;
+  if (!piece->isMoving()) {
+    destination.x = piece->file()*square_size + (square_size - piece->getWidth())/2;
+    destination.y = piece->rank()*square_size + (square_size - piece->getHeight())/2;
+  } else {
+    destination.x = piece->x() - piece->getWidth()/2;
+    destination.y = piece->y() - piece->getHeight()/2;
+  }
   destination.w = piece->getWidth();
   destination.h = piece->getHeight();
-  SDL_RendererFlip flip = SDL_FLIP_NONE;
-  SDL_RenderCopyEx(sdl_renderer, texture, NULL, &destination,
-                   0, NULL, flip);
-  // SDL_RenderCopy(sdl_renderer, texture, NULL, &destination);
+  // SDL_RendererFlip flip = SDL_FLIP_NONE;
+  // SDL_RenderCopyEx(sdl_renderer, texture, NULL, &destination,
+  //                  0, NULL, flip);
+  SDL_RenderCopy(sdl_renderer, texture, NULL, &destination);
   SDL_DestroyTexture(texture);
 
   if (render_bounding_box) {
