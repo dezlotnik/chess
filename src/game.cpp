@@ -27,7 +27,7 @@ void Game::Run(Controller const &controller, Renderer &renderer,
     // Input, Update, Render - the main game loop.
     controller.HandleInput(running, mouse_x_, mouse_y_, mouse_pressed_, mouse_lift_);
     Update();
-    renderer.Render(black_pieces_, white_pieces_);
+    renderer.Render(black_pieces_, white_pieces_, selected_piece_);
 
     frame_end = SDL_GetTicks();
 
@@ -63,43 +63,23 @@ void Game::Update() {
   }
 
   // Set position of moving pieces
-  for (auto &piece : black_pieces_) {
-    if (piece->isMoving()) {
-      piece->setPosition(mouse_x_, mouse_y_);
-    }
+  if (selected_piece_) {
+    selected_piece_->setPosition(mouse_x_, mouse_y_);
   }
 
-  for (auto &piece : white_pieces_) {
-    if (piece->isMoving()) {
-      piece->setPosition(mouse_x_, mouse_y_);
-    }
-  }
-
+  auto &enemy_pieces = (turn_ == Turn::White) ? black_pieces_ : white_pieces_;
   // remove captured pieces
-  if (!black_pieces_.empty()) {
-    auto it = black_pieces_.begin();
-    while (it != black_pieces_.end()) {
+  if (!enemy_pieces.empty()) {
+    auto it = enemy_pieces.begin();
+    while (it != enemy_pieces.end()) {
       std::unique_ptr<Piece> &piece = *it;
       if (piece->isCaptured()) {
-        it = black_pieces_.erase(it);
+        it = enemy_pieces.erase(it);
       } else {
         ++it;
       }
     }
   }
-
-  if (!white_pieces_.empty()) {
-    auto it = white_pieces_.begin();
-    while (it != white_pieces_.end()) {
-      std::unique_ptr<Piece> &piece = *it;
-      if (piece->isCaptured()) {
-        it = white_pieces_.erase(it);
-      } else {
-        ++it;
-      }
-    }
-  }
-
 }
 
 void Game::handleMousePress() {
@@ -109,20 +89,24 @@ void Game::handleMousePress() {
   rank = mouse_y_/100;
   file = mouse_x_/100;
 
-  for (auto &piece : black_pieces_) {
-    if (piece->rank() == rank && piece->file() == file && turn_ == Turn::Black) {
-      piece->setMoving(true);
-    }
-  }
+  auto &pieces = (turn_ == Turn::White) ? white_pieces_ : black_pieces_;
 
-  for (auto &piece : white_pieces_) {
-    if (piece->rank() == rank && piece->file() == file && turn_ == Turn::White) {
-      piece->setMoving(true);
+  auto it = pieces.begin();
+  while (it != pieces.end()) {
+    std::unique_ptr<Piece> &piece = *it;
+    if (piece->rank() == rank && piece->file() == file) {
+      selected_piece_ = std::move(piece);
+      pieces.erase(it);
+    } else {
+      ++it;
     }
   }
 }
 
 void Game::handleMouseLift() {
+  if (!selected_piece_) {
+    return;
+  }
   // find which square the mouse press was in...
   int rank;
   int file;
@@ -130,34 +114,18 @@ void Game::handleMouseLift() {
   file = mouse_x_/100;
   bool turn_over = false;
 
-  for (auto &piece : black_pieces_) {
-    if (piece->isMoving()) {
-      piece->setMoving(false);
-      if (rank != piece->rank() || file != piece->file()) {
-        turn_over = true;
-        piece->setRank(rank);
-        piece->setFile(file);
-        for (auto &enemy_piece : white_pieces_) {
-          if (enemy_piece->rank() == rank && enemy_piece->file() == file) {
-            enemy_piece->setCaptured(true);
-          }
-        }
-      }
-    }
-  }
+  auto &pieces = (turn_ == Turn::White) ? white_pieces_ : black_pieces_;
+  auto &enemy_pieces = (turn_ == Turn::White) ? black_pieces_ : white_pieces_;
 
-  for (auto &piece : white_pieces_) {
-    if (piece->isMoving()) {
-      piece->setMoving(false);
-      if (rank != piece->rank() || file != piece->file()) {
-        turn_over = true;
-        piece->setRank(rank);
-        piece->setFile(file);
-        for (auto &enemy_piece : black_pieces_) {
-          if (enemy_piece->rank() == rank && enemy_piece->file() == file) {
-            enemy_piece->setCaptured(true);
-          }
-        }
+  if (rank != selected_piece_->rank() || file != selected_piece_->file()) {
+    turn_over = true;
+    selected_piece_->setRank(rank);
+    selected_piece_->setFile(file);
+    pieces.push_back(std::move(selected_piece_));
+    // selected_piece_.reset();
+    for (auto &enemy_piece : enemy_pieces) {
+      if (enemy_piece->rank() == rank && enemy_piece->file() == file) {
+        enemy_piece->setCaptured(true);
       }
     }
   }

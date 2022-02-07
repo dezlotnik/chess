@@ -27,6 +27,7 @@ class Game {
   std::size_t screen_height;
   std::vector<std::unique_ptr<Piece>> black_pieces_;
   std::vector<std::unique_ptr<Piece>> white_pieces_;
+  std::unique_ptr<Piece> selected_piece_;
   void Update();
   void initializeFromFen(std::string fen, std::vector<std::unique_ptr<Piece>> &black_pieces, std::vector<std::unique_ptr<Piece>> &white_pieces);
   void initializeGame(std::vector<std::unique_ptr<Piece>> &black_pieces, std::vector<std::unique_ptr<Piece>> &white_pieces);

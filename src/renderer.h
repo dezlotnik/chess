@@ -11,9 +11,10 @@ class Renderer {
   Renderer(const std::size_t screen_width, const std::size_t screen_height);
   ~Renderer();
 
-  void Render(const std::vector<std::unique_ptr<Piece>>& black_pieces, const std::vector<std::unique_ptr<Piece>>& white_pieces);
+  void Render(const std::vector<std::unique_ptr<Piece>>& black_pieces, const std::vector<std::unique_ptr<Piece>>& white_pieces, const std::unique_ptr<Piece>& selected_piece);
   void UpdateWindowTitle(int fps);
-  void RenderPiece(const Piece *piece, bool render_bounding_box = false);
+  void RenderStaticPiece(const Piece *piece, bool render_bounding_box = false);
+  void RenderSelectedPiece(const Piece *piece, bool render_bounding_box = false);
 
   struct Color {
     size_t r = 0;

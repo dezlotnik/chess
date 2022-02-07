@@ -31,9 +31,6 @@ public:
   int file() const {return file_;}
   void setRank(const int rank) {rank_ = rank;}
   void setFile(const int file) {file_ = file;}
-
-  void setMoving(bool is_moving) {is_moving_ = is_moving;}
-  bool isMoving() const {return is_moving_;}
   void setPosition(int x, int y) {x_ = x; y_ = y;}
   int x() const {return x_;};
   int y() const {return y_;};
@@ -53,7 +50,6 @@ private:
   int file_ = 7;
   int rank_ = 7;
 
-  bool is_moving_ = false;
   int x_;
   int y_;
 
