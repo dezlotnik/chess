@@ -37,6 +37,8 @@ public:
   void setPosition(int x, int y) {x_ = x; y_ = y;}
   int x() const {return x_;};
   int y() const {return y_;};
+  bool isCaptured() const {return is_captured_;}
+  bool setCaptured(bool is_captured) {is_captured_ = is_captured;}
 
 private:
   Color color_;
@@ -54,6 +56,8 @@ private:
   bool is_moving_ = false;
   int x_;
   int y_;
+
+  bool is_captured_ = false;
 };
 
 #endif

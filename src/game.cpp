@@ -25,7 +25,7 @@ void Game::Run(Controller const &controller, Renderer &renderer,
     frame_start = SDL_GetTicks();
 
     // Input, Update, Render - the main game loop.
-    controller.HandleInput(running, black_pieces_, white_pieces_);
+    controller.HandleInput(running, mouse_x_, mouse_y_, mouse_pressed_, mouse_lift_);
     Update();
     renderer.Render(black_pieces_, white_pieces_);
 
@@ -52,7 +52,106 @@ void Game::Run(Controller const &controller, Renderer &renderer,
   }
 }
 
-void Game::Update() {}
+void Game::Update() {
+
+  if (mouse_pressed_) {
+    handleMousePress();
+  }
+
+  if (mouse_lift_) {
+    handleMouseLift();
+  }
+
+  // Set position of moving pieces
+  for (auto &piece : black_pieces_) {
+    if (piece->isMoving()) {
+      piece->setPosition(mouse_x_, mouse_y_);
+    }
+  }
+
+  for (auto &piece : white_pieces_) {
+    if (piece->isMoving()) {
+      piece->setPosition(mouse_x_, mouse_y_);
+    }
+  }
+
+  // remove captured pieces
+  if (!black_pieces_.empty()) {
+    auto it = black_pieces_.begin();
+    while (it != black_pieces_.end()) {
+      std::unique_ptr<Piece> &piece = *it;
+      if (piece->isCaptured()) {
+        it = black_pieces_.erase(it);
+      } else {
+        ++it;
+      }
+    }
+  }
+
+  if (!white_pieces_.empty()) {
+    auto it = white_pieces_.begin();
+    while (it != white_pieces_.end()) {
+      std::unique_ptr<Piece> &piece = *it;
+      if (piece->isCaptured()) {
+        it = white_pieces_.erase(it);
+      } else {
+        ++it;
+      }
+    }
+  }
+
+}
+
+void Game::handleMousePress() {
+  // find which square the mouse press was in...
+  int rank;
+  int file;
+  rank = mouse_y_/100;
+  file = mouse_x_/100;
+
+  for (auto &piece : black_pieces_) {
+    if (piece->rank() == rank && piece->file() == file) {
+      piece->setMoving(true);
+    }
+  }
+
+  for (auto &piece : white_pieces_) {
+    if (piece->rank() == rank && piece->file() == file) {
+      piece->setMoving(true);
+    }
+  }
+}
+
+void Game::handleMouseLift() {
+  // find which square the mouse press was in...
+  int rank;
+  int file;
+  rank = mouse_y_/100;
+  file = mouse_x_/100;
+
+  for (auto &piece : black_pieces_) {
+    if (piece->isMoving()) {
+      piece->setMoving(false);
+      piece->setRank(rank);
+      piece->setFile(file);
+    } else if (piece->rank() == rank && piece->file() == file) {
+      // handle captures
+      piece->setCaptured(true);
+    }
+
+  }
+
+  for (auto &piece : white_pieces_) {
+    if (piece->isMoving()) {
+      piece->setMoving(false);
+      piece->setRank(rank);
+      piece->setFile(file);
+    } else if (piece->rank() == rank && piece->file() == file) {
+      // handle captures
+      piece->setCaptured(true);
+    }
+  }
+}
 
 void Game::initializeFromFen(std::string fen, std::vector<std::unique_ptr<Piece>> &black_pieces, std::vector<std::unique_ptr<Piece>> &white_pieces) {
  // todo
