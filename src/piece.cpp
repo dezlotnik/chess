@@ -4,6 +4,82 @@ Piece::Piece(Color color, Type type) : color_(color), type_(type) {
   setImage(color, type);
 }
 
+std::vector<Piece::Move> Piece::legalMoves(const std::vector<std::unique_ptr<Piece>>& black_pieces, const std::vector<std::unique_ptr<Piece>>& white_pieces) const {
+  std::vector<Move> moves;
+
+  auto &pieces = (color_ == Color::White) ? white_pieces : black_pieces;
+  
+  for (int rank = rank_; rank < 8; rank++) {
+    bool end_search = false;
+    Move move;
+    move.rank = rank;
+    move.file = file_;
+    for (auto &piece : pieces) {
+      if (piece->rank() == move.rank && piece->file() == move.file) {
+        end_search = true;
+        break;
+      }
+    }
+    if (end_search) {
+      break;
+    }
+    moves.push_back(move);
+  }
+
+  for (int rank = rank_; rank >= 0; rank--) {
+    bool end_search = false;
+    Move move;
+    move.rank = rank;
+    move.file = file_;
+    for (auto &piece : pieces) {
+      if (piece->rank() == move.rank && piece->file() == move.file) {
+        end_search = true;
+        break;
+      }
+    }
+    if (end_search) {
+      break;
+    }
+    moves.push_back(move);
+  }
+
+  for (int file = file_; file < 8; file++) {
+    bool end_search = false;
+    Move move;
+    move.rank = rank_;
+    move.file = file;
+    for (auto &piece : pieces) {
+      if (piece->rank() == move.rank && piece->file() == move.file) {
+        end_search = true;
+        break;
+      }
+    }
+    if (end_search) {
+      break;
+    }
+    moves.push_back(move);
+  }
+
+  for (int file = file_; file >= 0; file--) {
+    bool end_search = false;
+    Move move;
+    move.rank = rank_;
+    move.file = file;
+    for (auto &piece : pieces) {
+      if (piece->rank() == move.rank && piece->file() == move.file) {
+        end_search = true;
+        break;
+      }
+    }
+    if (end_search) {
+      break;
+    }
+    moves.push_back(move);
+  }
+
+  return moves;
+}
+
 void Piece::setImage(Color color, Type type) {
   if (color == Color::White) {
     switch (type) {

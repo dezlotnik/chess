@@ -14,7 +14,7 @@ class Renderer {
   void Render(const std::vector<std::unique_ptr<Piece>>& black_pieces, const std::vector<std::unique_ptr<Piece>>& white_pieces, const std::unique_ptr<Piece>& selected_piece);
   void UpdateWindowTitle(int fps);
   void RenderStaticPiece(const Piece *piece, bool render_bounding_box = false);
-  void RenderSelectedPiece(const Piece *piece, bool render_bounding_box = false);
+  void RenderSelectedPiece(const Piece *piece, const std::vector<std::unique_ptr<Piece>>& black_pieces, const std::vector<std::unique_ptr<Piece>>& white_pieces, bool render_bounding_box = false);
 
   struct Color {
     size_t r = 0;

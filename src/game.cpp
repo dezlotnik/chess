@@ -2,6 +2,7 @@
 #include <sstream>
 #include "SDL.h"
 #include "game.h"
+#include <algorithm>
 #include <iostream>
 
 
@@ -53,13 +54,14 @@ void Game::Run(Controller const &controller, Renderer &renderer,
 }
 
 void Game::Update() {
+  bool turn_over = false;
 
   if (mouse_pressed_) {
     handleMousePress();
   }
 
   if (mouse_lift_) {
-    handleMouseLift();
+    handleMouseLift(turn_over);
   }
 
   // Set position of moving pieces
@@ -79,6 +81,10 @@ void Game::Update() {
         ++it;
       }
     }
+  }
+
+  if (turn_over) {
+    turn_ = (turn_ == Turn::White) ? Turn::Black : Turn::White;
   }
 }
 
@@ -103,7 +109,7 @@ void Game::handleMousePress() {
   }
 }
 
-void Game::handleMouseLift() {
+void Game::handleMouseLift(bool& turn_over) {
   if (!selected_piece_) {
     return;
   }
@@ -112,17 +118,25 @@ void Game::handleMouseLift() {
   int file;
   rank = mouse_y_/100;
   file = mouse_x_/100;
-  bool turn_over = false;
 
   auto &pieces = (turn_ == Turn::White) ? white_pieces_ : black_pieces_;
   auto &enemy_pieces = (turn_ == Turn::White) ? black_pieces_ : white_pieces_;
 
-  if (rank != selected_piece_->rank() || file != selected_piece_->file()) {
-    turn_over = true;
+  Piece::Move move;
+  move.rank = rank;
+  move.file = file;
+
+  auto legal_moves = selected_piece_->legalMoves(black_pieces_, white_pieces_);
+  bool legal_move = false;
+
+  if (std::find_if(legal_moves.begin(), legal_moves.end(), [move](Piece::Move move_s) {return (move_s.rank == move.rank && move_s.file == move.file);} ) != legal_moves.end()) {
+    legal_move = true;
+  }
+  
+  if ((rank != selected_piece_->rank() || file != selected_piece_->file()) && legal_move) {
     selected_piece_->setRank(rank);
     selected_piece_->setFile(file);
-    pieces.push_back(std::move(selected_piece_));
-    // selected_piece_.reset();
+    turn_over = true;
     for (auto &enemy_piece : enemy_pieces) {
       if (enemy_piece->rank() == rank && enemy_piece->file() == file) {
         enemy_piece->setCaptured(true);
@@ -130,10 +144,10 @@ void Game::handleMouseLift() {
     }
   }
 
-  if (turn_over) {
-    turn_ = (turn_ == Turn::White) ? Turn::Black : Turn::White;
-  }
+  pieces.push_back(std::move(selected_piece_));
 }
+
+
 
 void Game::initializeFromFen(std::string fen, std::vector<std::unique_ptr<Piece>> &black_pieces, std::vector<std::unique_ptr<Piece>> &white_pieces) {
  // todo

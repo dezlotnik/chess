@@ -32,7 +32,7 @@ class Game {
   void initializeFromFen(std::string fen, std::vector<std::unique_ptr<Piece>> &black_pieces, std::vector<std::unique_ptr<Piece>> &white_pieces);
   void initializeGame(std::vector<std::unique_ptr<Piece>> &black_pieces, std::vector<std::unique_ptr<Piece>> &white_pieces);
   void handleMousePress();
-  void handleMouseLift();
+  void handleMouseLift(bool& turn_over);
   int mouse_y_ = 0;
   int mouse_x_ = 0;
   bool mouse_pressed_ = false;

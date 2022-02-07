@@ -73,7 +73,7 @@ void Renderer::Render(const std::vector<std::unique_ptr<Piece>>& black_pieces, c
   }
 
   if (selected_piece) {
-    RenderSelectedPiece(selected_piece.get());
+    RenderSelectedPiece(selected_piece.get(), black_pieces, white_pieces);
   }
   
 
@@ -108,7 +108,7 @@ void Renderer::RenderStaticPiece(const Piece *piece,  bool render_bounding_box) 
   }
 }
 
-void Renderer::RenderSelectedPiece(const Piece *piece,  bool render_bounding_box) {
+void Renderer::RenderSelectedPiece(const Piece *piece, const std::vector<std::unique_ptr<Piece>>& black_pieces, const std::vector<std::unique_ptr<Piece>>& white_pieces,  bool render_bounding_box) {
   SDL_Surface *surface = IMG_Load((piece->getImage()).c_str());
   if (nullptr == surface) {
     std::cerr << "SDL_Error: " << SDL_GetError() << "\n";
@@ -127,5 +127,16 @@ void Renderer::RenderSelectedPiece(const Piece *piece,  bool render_bounding_box
   if (render_bounding_box) {
     SDL_SetRenderDrawColor(sdl_renderer, 0x00, 0x7A, 0xCC, 0xFF);
     SDL_RenderDrawRect(sdl_renderer, &destination);
+  }
+
+  for (auto move : piece->legalMoves(black_pieces, white_pieces)) {
+    SDL_Rect r;
+    r.x = square_size*move.file;
+    r.y = square_size*move.rank;
+    r.w = square_size;
+    r.h = square_size;
+    SDL_SetRenderDrawBlendMode(sdl_renderer, SDL_BLENDMODE_BLEND);
+    SDL_SetRenderDrawColor(sdl_renderer, 72, 191, 173, 50);
+    SDL_RenderFillRect(sdl_renderer, &r);
   }
 }

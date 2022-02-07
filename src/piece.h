@@ -2,6 +2,8 @@
 #define PIECE_H
 
 #include <string>
+#include <vector>
+#include <memory>
 
 class Piece {
 public:
@@ -20,8 +22,13 @@ public:
       Queen = 5,
       King = 6
   };
-  Piece(Color color, Type type);
 
+  struct Move {
+    int rank;
+    int file;
+  };
+
+  Piece(Color color, Type type);
 
   std::string getImage() const {return image_;}
   size_t getHeight() const {return height_;}
@@ -36,6 +43,7 @@ public:
   int y() const {return y_;};
   bool isCaptured() const {return is_captured_;}
   bool setCaptured(bool is_captured) {is_captured_ = is_captured;}
+  std::vector<Move> legalMoves(const std::vector<std::unique_ptr<Piece>>& black_pieces, const std::vector<std::unique_ptr<Piece>>& white_pieces) const;
 
 private:
   Color color_;
