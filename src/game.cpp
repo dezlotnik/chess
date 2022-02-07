@@ -137,12 +137,13 @@ void Game::handleMouseLift() {
         turn_over = true;
         piece->setRank(rank);
         piece->setFile(file);
+        for (auto &enemy_piece : white_pieces_) {
+          if (enemy_piece->rank() == rank && enemy_piece->file() == file) {
+            enemy_piece->setCaptured(true);
+          }
+        }
       }
-    } else if (piece->rank() == rank && piece->file() == file && turn_ == Turn::White) {
-      // handle captures
-      piece->setCaptured(true);
     }
-
   }
 
   for (auto &piece : white_pieces_) {
@@ -152,10 +153,12 @@ void Game::handleMouseLift() {
         turn_over = true;
         piece->setRank(rank);
         piece->setFile(file);
+        for (auto &enemy_piece : black_pieces_) {
+          if (enemy_piece->rank() == rank && enemy_piece->file() == file) {
+            enemy_piece->setCaptured(true);
+          }
+        }
       }
-    } else if (piece->rank() == rank && piece->file() == file && turn_ == Turn::Black) {
-      // handle captures
-      piece->setCaptured(true);
     }
   }
 
