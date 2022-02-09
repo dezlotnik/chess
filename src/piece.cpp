@@ -4,77 +4,117 @@ Piece::Piece(Color color, Type type) : color_(color), type_(type) {
   setImage(color, type);
 }
 
+bool Piece::blocked(const Move &move, const std::vector<std::unique_ptr<Piece>>& pieces) const {
+  for (auto &piece : pieces) {
+    if (move.rank == piece->rank() && move.file == piece->file()) {
+      return true;
+    }
+  }
+  return false;
+}
+
 std::vector<Piece::Move> Piece::legalMoves(const std::vector<std::unique_ptr<Piece>>& black_pieces, const std::vector<std::unique_ptr<Piece>>& white_pieces) const {
   std::vector<Move> moves;
 
   auto &pieces = (color_ == Color::White) ? white_pieces : black_pieces;
+  auto &enemy_pieces = (color_ == Color::White) ? black_pieces : white_pieces;
+
+  if (type_ == Type::Queen || type_ == Type::Rook) {
+    std::vector<std::vector<int>> move_directions = { {-1,0}, {0,-1}, {1, 0}, {0, 1} };
+    for (auto d : move_directions) {
+      for (int i = 0; i < 8; i++) {
+        Move move;
+        move.rank = rank_ + i*d[0];
+        move.file = file_ + i*d[1];
+        if (blocked(move, pieces)) {
+          break;
+        }
+        if (blocked(move, enemy_pieces)) {
+          moves.push_back(move);
+          break;
+        }
+        if (move.rank < 8 && move.rank >= 0 && move.file < 8 && move.file >= 0) {
+          moves.push_back(move);
+        }
+      }
+    }
+  }
+
+  if (type_ == Type::Queen || type_ == Type::Bishop) {
+    std::vector<std::vector<int>> move_directions = { {-1,-1}, {-1,1}, {1, -1}, {1, 1} };
+    for (auto d : move_directions) {
+      for (int i = 0; i < 8; i++) {
+        Move move;
+        move.rank = rank_ + i*d[0];
+        move.file = file_ + i*d[1];
+        if (blocked(move, pieces)) {
+          break;
+        }
+        if (blocked(move, enemy_pieces)) {
+          moves.push_back(move);
+          break;
+        }
+        if (move.rank < 8 && move.rank >= 0 && move.file < 8 && move.file >= 0) {
+          moves.push_back(move);
+        }
+      }
+    }
+  }
   
-  for (int rank = rank_; rank < 8; rank++) {
-    bool end_search = false;
+  if (type_ == Type::Pawn) {
+    std::vector<int> move_direction = {1,0};
+    std::vector<std::vector<int>> attack_directions = { {1,1}, {1,-1} };
+    int up_dir = (color_ == Color::White) ? -1 : 1;
+    int starting_rank = (color_ == Color::White) ? 6 : 1;
     Move move;
-    move.rank = rank;
-    move.file = file_;
-    for (auto &piece : pieces) {
-      if (piece->rank() == move.rank && piece->file() == move.file) {
-        end_search = true;
-        break;
+    move.rank = rank_ + up_dir*move_direction[0];
+    move.file = file_ + up_dir*move_direction[1];
+    if (!blocked(move, pieces) && !blocked(move, enemy_pieces)) {
+      moves.push_back(move);
+    }
+    if (rank_ == starting_rank) {
+      Move move;
+      move.rank = rank_ + 2*up_dir*move_direction[0];
+      move.file = file_ + 2*up_dir*move_direction[1];
+      if (!blocked(move, pieces) && !blocked(move, enemy_pieces)) {
+        moves.push_back(move);
       }
     }
-    if (end_search) {
-      break;
+    for (auto d : attack_directions) {
+      Move move;
+      move.rank = rank_ + up_dir*d[0];
+      move.file = file_ + up_dir*d[1];
+      if (blocked(move, enemy_pieces)) {
+        moves.push_back(move);
+      }
     }
-    moves.push_back(move);
   }
 
-  for (int rank = rank_; rank >= 0; rank--) {
-    bool end_search = false;
-    Move move;
-    move.rank = rank;
-    move.file = file_;
-    for (auto &piece : pieces) {
-      if (piece->rank() == move.rank && piece->file() == move.file) {
-        end_search = true;
-        break;
+  if (type_ == Type::King) {
+    std::vector<int> ranks = {-1, 0, 1};
+    std::vector<int> files = {-1, 0, 1};
+    for (int r : ranks) {
+      for (int f : files) {
+        Move move;
+        move.rank = rank_ + r;
+        move.file = file_ + f;
+        if (move.rank < 8 && move.rank >= 0 && move.file < 8 && move.file >= 0 && !blocked(move, pieces)) {
+          moves.push_back(move);
+        }
       }
     }
-    if (end_search) {
-      break;
-    }
-    moves.push_back(move);
   }
 
-  for (int file = file_; file < 8; file++) {
-    bool end_search = false;
-    Move move;
-    move.rank = rank_;
-    move.file = file;
-    for (auto &piece : pieces) {
-      if (piece->rank() == move.rank && piece->file() == move.file) {
-        end_search = true;
-        break;
+  if (type_ == Type::Knight) {
+    std::vector<std::vector<int>> diags = { {-2,-1}, {-1,-2}, {2,-1}, {1, -2}, {-2, 1}, {-1, 2}, {2, 1}, {1, 2} };
+    for (auto d : diags) {
+      Move move;
+      move.rank = rank_ + d[0];
+      move.file = file_ + d[1];
+      if (move.rank < 8 && move.rank >= 0 && move.file < 8 && move.file >= 0 && !blocked(move, pieces)) {
+        moves.push_back(move);
       }
     }
-    if (end_search) {
-      break;
-    }
-    moves.push_back(move);
-  }
-
-  for (int file = file_; file >= 0; file--) {
-    bool end_search = false;
-    Move move;
-    move.rank = rank_;
-    move.file = file;
-    for (auto &piece : pieces) {
-      if (piece->rank() == move.rank && piece->file() == move.file) {
-        end_search = true;
-        break;
-      }
-    }
-    if (end_search) {
-      break;
-    }
-    moves.push_back(move);
   }
 
   return moves;

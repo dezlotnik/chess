@@ -31,8 +31,8 @@ class Renderer {
   const std::size_t screen_height;
   const std::size_t square_size;
 
-  const Color light_color_ = {170, 170, 170, 255};
-  const Color dark_color_ = {68, 68, 68, 255};
+  const Color light_color_ = {238, 238, 210, 255};
+  const Color dark_color_ = {118, 150, 86, 255};
 };
 
 #endif

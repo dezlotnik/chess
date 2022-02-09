@@ -51,6 +51,7 @@ private:
   std::string image_;
 
   void setImage(Color color, Type type);
+  bool blocked(const Move &move, const std::vector<std::unique_ptr<Piece>>& pieces) const;
 
   size_t height_ = 80;
   size_t width_;

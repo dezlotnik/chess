@@ -136,7 +136,7 @@ void Renderer::RenderSelectedPiece(const Piece *piece, const std::vector<std::un
     r.w = square_size;
     r.h = square_size;
     SDL_SetRenderDrawBlendMode(sdl_renderer, SDL_BLENDMODE_BLEND);
-    SDL_SetRenderDrawColor(sdl_renderer, 72, 191, 173, 50);
+    SDL_SetRenderDrawColor(sdl_renderer, 255, 82, 82, 50);
     SDL_RenderFillRect(sdl_renderer, &r);
   }
 }
